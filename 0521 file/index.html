@@ -487,7 +487,7 @@ body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:var(--
   .vaxis-lbl { display:none !important; }
   /* ビジョンツール側のscardは印刷対象外 */
   #app .scard { display:none !important; }
-  /* ライフイベント表の印刷制御はle-section側のCSSで管理 */
+
   body { background:#f5f2ec !important; -webkit-print-color-adjust:exact; color-adjust:exact; }
   .vout { display:block !important; }
   .vhero { padding:1.5rem 1rem 1.25rem; border-bottom:none; }
@@ -668,20 +668,7 @@ table.lt .c-empty{color:var(--ink3);font-size:.76rem;}
 .credit-name{font-size:.72rem;color:var(--gold);letter-spacing:.08em;font-family:'Noto Serif JP',serif;font-weight:300;}
 .disclaimer{margin-top:1.5rem;padding:1rem 1.25rem;border:1px solid var(--border);border-radius:2px;background:var(--gold-bg);font-size:.72rem;color:var(--ink3);line-height:1.8;}
 
-@media print{
-  
-  /* 編集ヒントと追加フォームを非表示 */
-  #le-section .edit-hint-bar { display:none !important; }
-  #le-section .add-event-section { display:none !important; }
-  #le-section { display:block !important; }
-  #le-section #sResult { display:block !important; }
-  #le-section #sResult .scard { display:block !important; box-shadow:none !important; border:none !important; }
-  #le-section #sResult .sbody { padding:0 !important; }
-  .lt-h { display:table !important; }
-  .lt-wrap { overflow:visible !important; }
-  table.lt-h th, table.lt-h td { font-size:10px !important; padding:4px 6px !important; }
-  body{background:#fff!important;-webkit-print-color-adjust:exact;color-adjust:exact;}
-}
+
 @media(max-width:580px){.hdr{padding:2rem 1.25rem 1.5rem;}.sbody,.sfoot{padding:1.25rem;}}
 
 /* ④ レスポンシブ表 */
@@ -724,7 +711,10 @@ table.lt-v .c-empty { color: var(--ink3); font-size: .74rem; }
 }
 
 
-
+@media print{
+  .hdr,.prog-wrap,.vacts,.prog{display:none!important;}
+  body{background:#f5f2ec!important;-webkit-print-color-adjust:exact;color-adjust:exact;}
+}
 </style>
 </head>
 <body>
@@ -1340,13 +1330,6 @@ function doPrint() {
   window.print();
 }
 
-
-function doRestart() {
-  if (!confirm('最初からやり直しますか？')) return;
-  init(); cur=0; updateProg(); render(0);
-}
-
-// ─── LIFE EVENT LINK ──────────────────────────────────────────────────────────
 function doGoLifeEvent() {
   const lines = [];
   STEPS.forEach(step => {
@@ -1360,8 +1343,14 @@ function doGoLifeEvent() {
   });
   const notes = STEPS.filter(s => S[s.id].note && S[s.id].note.trim())
     .map(s => '[' + s.title + '] ' + S[s.id].note);
-  const encoded = encodeURIComponent(lines.concat(notes).join('\n'));
+  const visionText = lines.concat(notes).join('\n');
+  const encoded = encodeURIComponent(visionText);
   window.location.href = 'life-event.html?vision=' + encoded;
+}
+
+function doRestart() {
+  if (!confirm('最初からやり直しますか？')) return;
+  init(); cur=0; updateProg(); render(0);
 }
 
 function checkLifeEventBtn() {
