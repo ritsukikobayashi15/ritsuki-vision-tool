@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ライフイベント表 — Ritsuki | Asset Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ec;--bg2:#ffffff;--bg3:#ede9e0;
+  --ink:#1a1810;--ink2:#3d3828;--ink3:#8a8070;
+  --gold:#b8933a;--gold2:#d4aa55;--gold3:#e8d5a0;--gold-bg:#faf6ec;
+  --border:rgba(184,147,58,0.22);--border2:rgba(184,147,58,0.5);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;line-height:1.75;}
+
+.hdr{background:var(--bg);padding:3rem 2rem 2rem;text-align:center;border-bottom:1px solid var(--border2);position:relative;}
+.hdr::before{content:'';position:absolute;left:50%;top:2.5rem;transform:translateX(-50%);width:32px;height:1px;background:var(--gold);}
+.hdr-inner{max-width:820px;margin:0 auto;}
+.hdr-ey{font-size:9px;letter-spacing:.55em;color:var(--gold);text-transform:uppercase;margin-bottom:1.1rem;font-weight:300;}
+.hdr h1{font-family:'Noto Serif JP',serif;font-size:clamp(1.4rem,3.5vw,2rem);font-weight:200;letter-spacing:.04em;margin-bottom:.4rem;}
+.hdr-line{width:32px;height:1px;background:var(--gold);margin:.8rem auto .9rem;}
+.hdr-desc{font-size:.83rem;color:var(--ink3);font-weight:300;}
+
+.prog-wrap{background:var(--bg3);border-bottom:1px solid var(--border);padding:.65rem 2rem;}
+.prog{max-width:820px;margin:0 auto;display:flex;align-items:center;gap:1rem;}
+.prog-steps{display:flex;gap:5px;flex:1;}
+.prog-dot{flex:1;height:3px;border-radius:1px;background:var(--gold3);transition:background .4s;}
+.prog-dot.done{background:var(--gold);opacity:.5;}
+.prog-dot.active{background:var(--gold);}
+.prog-txt{font-size:.72rem;color:var(--ink3);white-space:nowrap;}
+
+.main{max-width:820px;margin:0 auto;padding:2rem 1.5rem 5rem;}
+
+.scard{background:var(--bg2);border:1px solid var(--border);border-radius:4px;overflow:hidden;box-shadow:0 4px 32px rgba(26,24,16,0.11);animation:fu .4s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.shead{background:var(--ink);padding:1.1rem 1.75rem;display:flex;align-items:center;gap:1rem;border-bottom:2px solid var(--gold);}
+.snum{width:28px;height:28px;border-radius:50%;border:1px solid rgba(184,147,58,.55);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif JP',serif;font-size:.82rem;color:var(--gold);flex-shrink:0;}
+.s-en{font-size:8px;letter-spacing:.25em;color:rgba(255,255,255,.28);text-transform:uppercase;}
+.s-title{font-family:'Noto Serif JP',serif;font-size:.95rem;font-weight:300;color:#f5f2ec;}
+.sbody{padding:1.5rem 1.75rem;}
+.slead{font-size:.83rem;color:var(--ink2);margin-bottom:1.25rem;line-height:1.75;}
+
+.step{display:none;}
+.step.active{display:block;}
+
+.field-label{font-size:.78rem;color:var(--ink2);font-weight:500;margin-bottom:.4rem;}
+.field-sub{font-size:.72rem;color:var(--ink3);margin-bottom:.75rem;line-height:1.6;}
+.finput{width:100%;padding:.55rem .85rem;border:1.5px solid var(--border2);border-radius:4px;background:var(--bg2);color:var(--ink);font-family:'Noto Sans JP',sans-serif;font-size:.84rem;outline:none;transition:border-color .2s;}
+.finput:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(184,147,58,.1);}
+.finput::placeholder{color:var(--ink3);}
+select.finput{cursor:pointer;}
+
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.1rem;}
+@media(max-width:540px){.field-row{grid-template-columns:1fr;}}
+
+.member-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.65rem;margin-bottom:.85rem;}
+.mcard{border:1.5px solid var(--border2);border-radius:4px;padding:.8rem 1rem;background:var(--bg2);}
+.mcard-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;}
+.mcard-name{font-size:.82rem;font-weight:500;}
+.mcard-age{font-size:.76rem;color:var(--ink3);}
+.btn-rm{background:none;border:none;color:var(--ink3);cursor:pointer;font-size:1rem;padding:0;line-height:1;}
+.btn-rm:hover{color:var(--ink);}
+
+.add-row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;}
+.btn-add{padding:.46rem 1rem;border:1.5px solid var(--border2);border-radius:4px;background:var(--bg2);color:var(--ink2);font-family:'Noto Sans JP',sans-serif;font-size:.8rem;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.btn-add:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-bg);}
+.btn-add.gold{border-color:var(--gold);color:var(--gold);}
+.btn-add.gold:hover{background:var(--gold-bg);}
+
+/* AUTO EVENTS */
+.auto-ev-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.25rem;}
+.auto-ev{display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;background:var(--gold-bg);border:1px solid var(--border2);border-radius:4px;font-size:.82rem;}
+.auto-ev-icon{font-size:1rem;flex-shrink:0;}
+.auto-ev-body{flex:1;}
+.auto-ev-name{color:var(--ink2);font-weight:500;}
+.auto-ev-year{font-size:.72rem;color:var(--ink3);margin-top:.1rem;}
+.auto-ev-badge{font-size:.68rem;padding:.1rem .5rem;border-radius:2px;background:#EAF3DE;color:#3B6D11;white-space:nowrap;}
+
+/* VISION CONVERSION CARDS */
+.vc-list{display:flex;flex-direction:column;gap:.85rem;}
+.vc-card{border:1.5px solid var(--border2);border-radius:4px;background:var(--bg2);overflow:hidden;}
+.vc-card.done{border-color:var(--gold);background:var(--gold-bg);}
+.vc-head{padding:.85rem 1.1rem;display:flex;align-items:flex-start;gap:.75rem;}
+.vc-cat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:.55rem;}
+.vc-vision-text{font-size:.84rem;color:var(--ink);line-height:1.55;flex:1;}
+.vc-cat-label{font-size:.7rem;font-weight:500;white-space:nowrap;padding:.15rem .5rem;border-radius:2px;}
+.vc-body{padding:.75rem 1.1rem 1rem;border-top:1px solid var(--border);background:var(--bg3);}
+.vc-body.done-bg{background:rgba(184,147,58,0.06);}
+.vc-q{font-size:.76rem;color:var(--ink2);margin-bottom:.6rem;font-weight:500;}
+.vc-options{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem;}
+.vc-opt{padding:.35rem .85rem;border:1px solid var(--border2);border-radius:20px;font-size:.76rem;color:var(--ink2);cursor:pointer;background:var(--bg2);transition:all .15s;white-space:nowrap;}
+.vc-opt:hover{border-color:var(--gold);color:var(--gold);}
+.vc-opt.sel{border-color:var(--gold);background:var(--gold);color:#fff;}
+.vc-year-row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;}
+.vc-year-input{width:100px;padding:.42rem .65rem;border:1.5px solid var(--border2);border-radius:4px;background:var(--bg2);color:var(--ink);font-family:'Noto Sans JP',sans-serif;font-size:.82rem;outline:none;}
+.vc-year-input:focus{border-color:var(--gold);}
+.vc-event-input{flex:1;min-width:140px;padding:.42rem .65rem;border:1.5px solid var(--border2);border-radius:4px;background:var(--bg2);color:var(--ink);font-family:'Noto Sans JP',sans-serif;font-size:.82rem;outline:none;}
+.vc-event-input:focus{border-color:var(--gold);}
+.vc-event-input::placeholder{color:var(--ink3);}
+.vc-skip{font-size:.72rem;color:var(--ink3);cursor:pointer;text-decoration:underline;padding:.35rem 0;}
+.vc-skip:hover{color:var(--ink2);}
+.vc-done-tag{font-size:.75rem;color:var(--gold);display:flex;align-items:center;gap:.3rem;padding:.5rem 1.1rem;font-weight:500;}
+
+/* CONFIRM / EDIT STEP */
+.confirm-list{display:flex;flex-direction:column;gap:.5rem;}
+.confirm-row{display:grid;grid-template-columns:80px 1fr auto;gap:.75rem;align-items:center;padding:.65rem .9rem;border:1px solid var(--border);border-radius:4px;background:var(--bg2);}
+.confirm-row.auto-row{background:var(--gold-bg);}
+.cy{font-family:'Noto Serif JP',serif;font-size:.88rem;font-weight:300;color:var(--ink);}
+.ce{font-size:.82rem;color:var(--ink2);}
+.ctag{font-size:.68rem;padding:.1rem .4rem;border-radius:2px;}
+.section-title{font-size:.78rem;color:var(--ink2);font-weight:500;margin:1.25rem 0 .6rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);}
+
+/* REPEAT EVENT */
+.rep-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.6rem;align-items:end;padding:.75rem 1rem;}
+@media(max-width:560px){.rep-grid{grid-template-columns:1fr 1fr;}}
+.rep-card{border:1.5px solid var(--border2);border-radius:4px;background:var(--bg2);margin-bottom:.6rem;overflow:hidden;display:grid;grid-template-columns:1fr auto;}
+.rep-del{display:flex;align-items:center;padding:0 .75rem;border-left:1px solid var(--border);}
+.ev-label{font-size:.7rem;color:var(--ink3);margin-bottom:.25rem;}
+.ev-input{width:100%;padding:.42rem .65rem;border:1px solid var(--border2);border-radius:3px;background:var(--bg3);color:var(--ink);font-family:'Noto Sans JP',sans-serif;font-size:.82rem;outline:none;transition:border-color .2s;}
+.ev-input:focus{border-color:var(--gold);background:var(--bg2);}
+.ev-input::placeholder{color:var(--ink3);}
+select.ev-input{cursor:pointer;}
+
+/* RESULT */
+.rtw{overflow-x:auto;margin-bottom:1.5rem;}
+table.lt{width:100%;border-collapse:collapse;font-size:.82rem;}
+table.lt th{background:var(--ink);color:var(--gold3);font-family:'Noto Serif JP',serif;font-weight:300;font-size:.76rem;padding:.65rem 1rem;text-align:left;border:1px solid rgba(184,147,58,0.3);white-space:nowrap;}
+table.lt td{padding:.75rem 1rem;border:1px solid var(--border);vertical-align:top;}
+table.lt tr:nth-child(even) td{background:var(--bg3);}
+table.lt .c-year{font-family:'Noto Serif JP',serif;font-weight:300;color:var(--ink);white-space:nowrap;}
+table.lt .c-age{color:var(--ink3);font-size:.76rem;white-space:nowrap;}
+table.lt .c-event{color:var(--ink2);line-height:1.7;}
+table.lt .c-empty{color:var(--ink3);font-size:.76rem;}
+.ev-tag{display:inline-block;font-size:.7rem;padding:.1rem .45rem;border-radius:2px;margin:.1rem .2rem .1rem 0;vertical-align:middle;}
+.tag-auto  {background:#EAF3DE;color:#3B6D11;}
+.tag-home  {background:#E6F1FB;color:#185FA5;}
+.tag-edu   {background:#EAF3DE;color:#3B6D11;}
+.tag-career{background:#EEEDFE;color:#3C3489;}
+.tag-retire{background:#FAEEDA;color:#854F0B;}
+.tag-travel{background:#E1F5EE;color:#0F6E56;}
+.tag-health{background:#FAECE7;color:#993C1D;}
+.tag-other {background:var(--bg3);color:var(--ink3);}
+.ev-repeat-badge{font-size:.68rem;color:var(--ink3);margin-left:.3rem;}
+
+.sfoot{padding:1rem 1.75rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;background:var(--bg3);gap:.75rem;flex-wrap:wrap;}
+.btn-back{background:transparent;border:1px solid var(--border2);color:var(--ink2);padding:.5rem 1.1rem;border-radius:2px;font-family:'Noto Sans JP',sans-serif;font-size:.8rem;cursor:pointer;transition:all .15s;}
+.btn-back:hover{border-color:var(--gold);color:var(--gold);}
+.btn-next{background:var(--ink);color:var(--bg);border:none;padding:.55rem 1.6rem;border-radius:2px;font-family:'Noto Sans JP',sans-serif;font-size:.84rem;font-weight:500;cursor:pointer;transition:background .2s;letter-spacing:.04em;}
+.btn-next:hover{background:var(--gold);}
+
+.ract{display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.25rem;}
+.btn-print{background:var(--gold);color:#fff;border:none;padding:.5rem 1.4rem;border-radius:2px;font-family:'Noto Sans JP',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;}
+.btn-print:hover{background:var(--gold2);}
+.btn-ol{background:var(--bg3);border:1px solid var(--border2);color:var(--ink2);padding:.46rem 1.1rem;border-radius:2px;font-family:'Noto Sans JP',sans-serif;font-size:.8rem;cursor:pointer;transition:all .15s;}
+.btn-ol:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-bg);}
+
+.credit{display:flex;justify-content:space-between;align-items:center;margin-top:.75rem;}
+.credit-date{font-size:.7rem;color:var(--ink3);}
+.credit-name{font-size:.72rem;color:var(--gold);letter-spacing:.08em;font-family:'Noto Serif JP',serif;font-weight:300;}
+.disclaimer{margin-top:1.5rem;padding:1rem 1.25rem;border:1px solid var(--border);border-radius:2px;background:var(--gold-bg);font-size:.72rem;color:var(--ink3);line-height:1.8;}
+
+@media print{
+  /* 印刷: ライフイベント表と免責のみ */
+  #le-section .hdr,
+  #le-section .prog-wrap,
+  #le-section .sfoot,
+  #le-section .ract,
+  #le-section #s0,
+  #le-section #s1,
+  #le-section #s2,
+  #le-section .credit,
+  #le-section p[style*="編集可能"],
+  #le-section > div > div > div:first-child { display:none !important; }
+  /* 編集ヒントと追加フォームを非表示 */
+  #le-section .edit-hint-bar { display:none !important; }
+  #le-section .add-event-section { display:none !important; }
+  
+  #le-section #sResult { display:block !important; }
+  #le-section #sResult .scard { display:block !important; box-shadow:none !important; border:none !important; }
+  #le-section #sResult .sbody { padding:0 !important; }
+  .lt-h { display:table !important; }
+  .lt-wrap { overflow:visible !important; }
+  table.lt-h th, table.lt-h td { font-size:10px !important; padding:4px 6px !important; }
+  body{background:#fff!important;-webkit-print-color-adjust:exact;color-adjust:exact;}
+}
+@media(max-width:580px){.hdr{padding:2rem 1.25rem 1.5rem;}.sbody,.sfoot{padding:1.25rem;}}
+
+/* ④ レスポンシブ表 */
+.lt-wrap { overflow-x: auto; margin-bottom: 1.5rem; }
+
+/* PC: 年が列・人が行（横向き） */
+table.lt-h { border-collapse: collapse; font-size: .8rem; width: 100%; }
+table.lt-h th { background: var(--ink); color: var(--gold3); font-family: 'Noto Serif JP',serif; font-weight: 300; font-size: .74rem; padding: .55rem .8rem; border: 1px solid rgba(184,147,58,0.3); white-space: nowrap; text-align: center; }
+table.lt-h th.row-head { text-align: left; min-width: 100px; }
+table.lt-h td { padding: .6rem .75rem; border: 1px solid var(--border); vertical-align: top; font-size: .78rem; text-align: center; background: var(--bg2); }
+table.lt-h tr:nth-child(even) td { background: var(--bg3); }
+table.lt-h td.row-head { text-align: left; font-weight: 500; color: var(--ink); background: var(--bg3) !important; white-space: nowrap; font-family: 'Noto Serif JP',serif; font-size: .82rem; font-weight: 300; }
+table.lt-h td.age-cell { color: var(--ink3); font-size: .74rem; }
+table.lt-h td.event-cell { text-align: left; min-width: 120px; line-height: 1.6; }
+table.lt-h td.empty-cell { color: var(--ink3); font-size: .72rem; }
+.ev-tag { display: inline-block; font-size: .68rem; padding: .1rem .4rem; border-radius: 2px; margin: .1rem .15rem .1rem 0; vertical-align: middle; }
+.tag-auto   { background:#EAF3DE; color:#3B6D11; }
+.tag-home   { background:#E6F1FB; color:#185FA5; }
+.tag-edu    { background:#EAF3DE; color:#3B6D11; }
+.tag-career { background:#EEEDFE; color:#3C3489; }
+.tag-retire { background:#FAEEDA; color:#854F0B; }
+.tag-travel { background:#E1F5EE; color:#0F6E56; }
+.tag-health { background:#FAECE7; color:#993C1D; }
+.tag-other  { background:var(--bg3); color:var(--ink3); }
+.ev-repeat-badge { font-size: .66rem; color: var(--ink3); }
+
+/* モバイル: 年が行・人が列（縦向き、従来通り） */
+table.lt-v { display: none; width: 100%; border-collapse: collapse; font-size: .8rem; }
+table.lt-v th { background: var(--ink); color: var(--gold3); font-family: 'Noto Serif JP',serif; font-weight: 300; font-size: .74rem; padding: .6rem .85rem; text-align: left; border: 1px solid rgba(184,147,58,0.3); white-space: nowrap; }
+table.lt-v td { padding: .65rem .85rem; border: 1px solid var(--border); vertical-align: top; background: var(--bg2); }
+table.lt-v tr:nth-child(even) td { background: var(--bg3); }
+table.lt-v .c-year { font-family: 'Noto Serif JP',serif; font-weight: 300; color: var(--ink); white-space: nowrap; }
+table.lt-v .c-age  { color: var(--ink3); font-size: .74rem; white-space: nowrap; }
+table.lt-v .c-event { color: var(--ink2); line-height: 1.6; }
+table.lt-v .c-empty { color: var(--ink3); font-size: .74rem; }
+
+@media (max-width: 640px) {
+  table.lt-h { display: none; }
+  table.lt-v { display: table; }
+}
+
+
+
+
+@media print{
+  .hdr,.prog-wrap,.sfoot,.ract,#s0,#s1,#s2,
+  .edit-hint-bar,.add-event-section { display:none !important; }
+  #sResult { display:block !important; }
+  #sResult .scard { display:block !important; box-shadow:none !important; border:none !important; }
+  #sResult .sbody { padding:0 !important; }
+  .lt-h { display:table !important; }
+  body { background:#fff !important; -webkit-print-color-adjust:exact; color-adjust:exact; }
+}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-ey">Life Event Table — Ritsuki | Asset Blueprint</div>
+    <h1>ライフイベント表</h1>
+    <div class="hdr-line"></div>
+    <div class="hdr-desc">ビジョンを、日付のある出来事に変える。</div>
+  </div>
+</div>
+
+<div class="prog-wrap">
+  <div class="prog">
+    <div class="prog-steps">
+      <div class="prog-dot active" id="pd0"></div>
+      <div class="prog-dot" id="pd1"></div>
+      <div class="prog-dot" id="pd2"></div>
+      <div class="prog-dot" id="pd3"></div>
+    </div>
+    <div class="prog-txt" id="progTxt">Step 1 / 4</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- STEP 0: 家族構成 -->
+  <div class="step active scard" id="s0">
+    <div class="shead">
+      <div class="snum">1</div>
+      <div><div class="s-en">Family</div><div class="s-title">家族構成と現在の年齢</div></div>
+    </div>
+    <div class="sbody">
+      <p class="slead">あなたと家族の情報を入力してください。子どもの年齢から入学・卒業などのイベントが自動で生成されます。</p>
+      <div class="field-row">
+        <div>
+          <div class="field-label">あなたの名前（または呼び方）</div>
+          <input class="finput" type="text" id="selfName" placeholder="例：自分" value="自分" />
+        </div>
+        <div>
+          <div class="field-label">現在の年齢</div>
+          <input class="finput" type="number" id="selfAge" placeholder="例：37" min="18" max="80" />
+        </div>
+      </div>
+      <div class="field-label">家族メンバー（任意）</div>
+      <div class="field-sub">配偶者・子どもを追加してください。子どもの場合は「種別」で「子ども」を選ぶと学校イベントが自動生成されます。<br><span style="color:var(--gold);">※ 個人情報保護のため、フルネームではなくニックネームや続柄（例：妻、長男）での入力を推奨します。</span></div>
+      <div class="member-grid" id="memberGrid"></div>
+      <div class="add-row" style="flex-wrap:wrap;gap:.6rem;">
+        <input class="finput" type="text" id="newName" placeholder="名前（例：パートナー、長男）" style="width:150px;" />
+        <input class="finput" type="number" id="newAge" placeholder="年齢" style="width:75px;" min="0" max="80" />
+        <select class="finput" id="newType" style="width:110px;">
+          <option value="partner">パートナー</option>
+          <option value="child">子ども</option>
+          <option value="other">その他</option>
+        </select>
+        <button class="btn-add" onclick="addMember()">＋ 追加</button>
+      </div>
+    </div>
+    <div class="sfoot">
+      <button class="btn-back" onclick="goVision()">← ビジョンに戻る</button>
+      <button class="btn-next" onclick="goStep(1)">次へ →</button>
+    </div>
+  </div>
+
+  <!-- STEP 1: ビジョン→イベント変換 -->
+  <div class="step scard" id="s1">
+    <div class="shead">
+      <div class="snum">2</div>
+      <div><div class="s-en">Vision → Event</div><div class="s-title">ビジョンをイベントに変換する</div></div>
+    </div>
+    <div class="sbody">
+      <p class="slead">ビジョンを1つずつ「いつ・何をする」という出来事に変換します。それぞれのビジョンに対して、想定する年または年齢を入力してください。</p>
+      <div class="vc-list" id="vcList"></div>
+    </div>
+    <div class="sfoot">
+      <button class="btn-back" onclick="goStep(0)">← 戻る</button>
+      <button class="btn-next" onclick="goStep(2)">次へ →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: 確認・追加 -->
+  <div class="step scard" id="s2">
+    <div class="shead">
+      <div class="snum">3</div>
+      <div><div class="s-en">Confirm & Add</div><div class="s-title">イベントを確認・追加する</div></div>
+    </div>
+    <div class="sbody">
+      <p class="slead">自動生成とビジョンから変換されたイベントを確認してください。繰り返しイベントや追加のイベントもここで入力できます。</p>
+
+      <div class="section-title">自動生成されたイベント</div>
+      <div id="autoEventList"></div>
+
+      <div class="section-title">ビジョンから変換したイベント</div>
+      <div class="confirm-list" id="visionEventList"></div>
+
+      <div class="section-title">繰り返しイベント</div>
+      <div id="repeatList"></div>
+      <button class="btn-add" onclick="addRepeat()">＋ 繰り返しイベントを追加</button>
+
+      <div class="section-title">その他のイベントを追加</div>
+      <div id="extraList"></div>
+      <button class="btn-add" onclick="addExtra()">＋ イベントを追加</button>
+    </div>
+    <div class="sfoot">
+      <button class="btn-back" onclick="goStep(1)">← 戻る</button>
+      <button class="btn-next" onclick="buildResult()">表を作成 →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="step" id="sResult">
+    <div class="scard">
+      <div class="shead">
+        <div class="snum" style="font-size:.68rem;">完</div>
+        <div><div class="s-en">Life Event Table</div><div class="s-title">ライフイベント表</div></div>
+      </div>
+      <div class="sbody">
+        <div class="edit-hint-bar">
+          <p style="font-size:.76rem;color:var(--ink3);margin-bottom:.5rem;">
+            <span style="background:var(--gold-bg);border:1px solid var(--border2);padding:.15rem .5rem;border-radius:2px;font-size:.72rem;margin-right:.4rem;">✎ 編集可能</span>
+            年・イベント名はセルをクリックして直接編集できます。
+          </p>
+          <p style="font-size:.72rem;color:var(--ink3);margin-bottom:.75rem;padding:.6rem .85rem;background:var(--gold-bg);border:1px solid var(--border);border-radius:3px;line-height:1.7;">
+            本ツールへの入力情報は、お使いのブラウザ内でのみ処理されます。入力内容は当方のサーバーへの送信・記録・保存は一切行われません。ページを閉じると自動的に消去されます。
+          </p>
+        </div>
+        <div class="lt-wrap">
+          <table class="lt-h" id="resultTableH"></table>
+          <table class="lt-v" id="resultTableV"></table>
+        </div>
+        <div class="disclaimer">
+          <strong style="color:var(--ink2);font-size:.73rem;">【ご利用にあたって】</strong><br>
+          本ツールへの入力情報は、お使いのブラウザ内でのみ処理されます。入力内容は当方のサーバーへの送信・記録・保存は一切行われません。ページを閉じると自動的に消去されます。本ツールの結果はいかなる意味においても投資・法律・税務上のアドバイスを構成するものではありません。
+        </div>
+        <div class="credit">
+          <span class="credit-date" id="resultDate"></span>
+          <span class="credit-name">Ritsuki | Asset Blueprint</span>
+        </div>
+        <div style="margin-bottom:1rem;" class="add-event-section">
+          <div class="section-title">イベントを追加する</div>
+          <div style="display:flex;gap:.6rem;align-items:flex-end;flex-wrap:wrap;margin-top:.5rem;">
+            <div>
+              <div class="ev-label">年</div>
+              <input class="ev-input" type="number" id="addEvYear" placeholder="例：2035" style="width:100px;" />
+            </div>
+            <div style="flex:1;min-width:150px;">
+              <div class="ev-label">出来事</div>
+              <input class="ev-input" type="text" id="addEvName" placeholder="例：転職、旅行" />
+            </div>
+            <div>
+              <div class="ev-label">カテゴリ</div>
+              <select class="ev-input" id="addEvCat">
+                <option value="home">住まい</option>
+                <option value="edu">子ども・教育</option>
+                <option value="career">キャリア</option>
+                <option value="retire">老後・リタイア</option>
+                <option value="travel" selected>旅行・体験</option>
+                <option value="health">医療・介護</option>
+                <option value="other">その他</option>
+              </select>
+            </div>
+            <button class="btn-add" onclick="addResultEvent()" style="white-space:nowrap;">＋ 追加して表を更新</button>
+          </div>
+        </div>
+        <div class="ract">
+          <button class="btn-print" onclick="window.print()">🖨 印刷・PDF保存</button>
+          <button class="btn-ol" onclick="goStep(2)">← 編集に戻る</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+// ── CONSTANTS ──────────────────────────────────────────────────────────
+const CAT_STYLE = {
+  '収入・稼ぎ方':        { color:'#9a7828', icon:'💰', tag:'career' },
+  '住居・暮らし方':      { color:'#285880', icon:'🏡', tag:'home'   },
+  '子ども・家族への支援':{ color:'#2a7050', icon:'🎓', tag:'edu'    },
+  '老後・リタイア':      { color:'#b03020', icon:'🌅', tag:'retire' },
+  '体験・生き方':        { color:'#8a8070', icon:'✈️', tag:'travel' },
+};
+
+const CAT_OPTIONS = [
+  {value:'home',  label:'住まい',       cls:'tag-home'},
+  {value:'edu',   label:'子ども・教育', cls:'tag-edu'},
+  {value:'career',label:'キャリア',     cls:'tag-career'},
+  {value:'retire',label:'老後・リタイア',cls:'tag-retire'},
+  {value:'travel',label:'旅行・体験',   cls:'tag-travel'},
+  {value:'health',label:'医療・介護',   cls:'tag-health'},
+  {value:'other', label:'その他',       cls:'tag-other'},
+];
+
+const REPEAT_OPTIONS = [
+  {value:1,label:'毎年'},{value:2,label:'2年ごと'},
+  {value:3,label:'3年ごと'},{value:5,label:'5年ごと'},{value:10,label:'10年ごと'},
+];
+
+// 子どもの学校イベント自動生成
+const CHILD_MILESTONES = [
+  {age:6,  name:'小学校入学', tag:'edu'},
+  {age:12, name:'中学校入学', tag:'edu'},
+  {age:15, name:'高校入学',   tag:'edu'},
+  {age:18, name:'大学入学',   tag:'edu'},
+  {age:22, name:'就職・独立', tag:'edu'},
+];
+
+// ビジョンカテゴリごとの変換サポート
+const VISION_SUPPORT = {
+  '収入・稼ぎ方': {
+    q: 'いつごろ実現したいですか？',
+    suggestions: ['独立・転職を検討している年','収入目標を達成したい年','副業を本業にしたい年'],
+    eventHint: '例：独立、副業本業化、転職',
+    ageSuggestions: [{age:35,label:'35歳'},{age:40,label:'40歳'},{age:45,label:'45歳'},{age:50,label:'50歳'},{age:55,label:'55歳'},{age:60,label:'60歳'}],
+  },
+  '住居・暮らし方': {
+    q: 'いつごろを想定していますか？',
+    suggestions: ['3年以内','5年以内','10年以内'],
+    eventHint: '例：マイホーム購入、引越し、リフォーム',
+    ageSuggestions: [{age:35,label:'35歳'},{age:40,label:'40歳'},{age:45,label:'45歳'},{age:50,label:'50歳'},{age:55,label:'55歳'},{age:60,label:'60歳'}],
+  },
+  '子ども・家族への支援': {
+    q: '子どもの進学・独立など、いつごろのイベントですか？',
+    suggestions: ['子どもの入学時','子どもの大学入学時','子どもの就職時'],
+    eventHint: '例：教育資金を確保する、子どもの留学サポート',
+    ageSuggestions: [],
+  },
+  '老後・リタイア': {
+    q: '何歳ごろにリタイア・老後を想定していますか？',
+    suggestions: [],
+    eventHint: '例：セミリタイア、完全リタイア、年金受給開始',
+    ageSuggestions: [{age:50,label:'50歳'},{age:55,label:'55歳'},{age:60,label:'60歳'},{age:65,label:'65歳'},{age:70,label:'70歳'}],
+  },
+  '体験・生き方': {
+    q: 'いつから、またはどのくらいの頻度で実現したいですか？',
+    suggestions: ['来年から','3年以内に','定期的に（繰り返し）'],
+    eventHint: '例：海外旅行、趣味への投資、留学',
+    ageSuggestions: [],
+  },
+};
+
+// ── STATE ──────────────────────────────────────────────────────────────
+let members = []; // [{name, age, type}]
+let visionItems = []; // [{cat, text}]
+let vcState = []; // [{id, cat, text, year, eventName, skipped, repeat, interval}]
+let autoEvents = []; // [{year, name, tag, memberName}]
+let repeatEvents = [];
+let extraEvents = [];
+let nextId = 1;
+const BASE_YEAR = new Date().getFullYear();
+let pvcState = [{ id:'partner_retire', year:null, eventName:'' }];
+let resultEvMap = {};   // 完成表のイベントデータ（表示後も編集可能）
+let resultYears = [];   // 完成表の年リスト // パートナー専用エントリ
+
+// ── INIT ───────────────────────────────────────────────────────────────
+function init() {
+  try {
+    const search = window.location.search;
+    if (!search) return;
+    const visionMatch = search.match(/[?&]vision=([^&]*)/);
+    if (!visionMatch) return;
+    const raw = visionMatch[1];
+    const decoded = decodeURIComponent(raw);
+    const lines = decoded.split('\n').filter(function(l){ return l.trim(); });
+    visionItems = lines.map(function(line) {
+      const m = line.match(/^\[(.+?)\]\s*(.+)$/);
+      if (!m) return {cat: '\u4f53\u9a13\u30fb\u751f\u304d\u65b9', text: line};
+      return {cat: m[1], text: m[2]};
+    });
+  } catch(e) {
+    console.error('init error:', e);
+  }
+}
+
+function leInit(visionText) {
+  if (visionText) {
+    const lines = visionText.split('\n').filter(l => l.trim());
+    visionItems = lines.map(line => {
+      const m = line.match(/^\[(.+?)\]\s*(.+)$/);
+      return m ? {cat: m[1], text: m[2]} : {cat: '体験・生き方', text: line};
+    });
+  }
+}
+
+// ── MEMBERS ────────────────────────────────────────────────────────────
+function addMember() {
+  const name = document.getElementById('newName').value.trim();
+  const age  = parseInt(document.getElementById('newAge').value);
+  const type = document.getElementById('newType').value;
+  if (!name) return;
+  members.push({name, age: isNaN(age) ? null : age, type});
+  document.getElementById('newName').value = '';
+  document.getElementById('newAge').value  = '';
+  renderMembers();
+}
+function removeMember(i) { members.splice(i,1); renderMembers(); }
+function renderMembers() {
+  const typeLabel = {partner:'パートナー', child:'子ども', other:'その他'};
+  document.getElementById('memberGrid').innerHTML = members.map((m,i) => `
+    <div class="mcard">
+      <div class="mcard-head"><span class="mcard-name">${esc(m.name)}</span><button class="btn-rm" onclick="removeMember(${i})">×</button></div>
+      <div class="mcard-age">${m.age !== null ? m.age+'歳' : '年齢未入力'} · ${typeLabel[m.type]||'その他'}</div>
+    </div>`).join('');
+}
+
+// ── AUTO EVENTS from children ──────────────────────────────────────────
+function buildAutoEvents() {
+  autoEvents = [];
+  const selfAge = parseInt(document.getElementById('selfAge').value) || null;
+  members.filter(m => m.type === 'child' && m.age !== null).forEach(child => {
+    CHILD_MILESTONES.forEach(ms => {
+      const yearsUntil = ms.age - child.age;
+      const year = BASE_YEAR + yearsUntil;
+      if (year >= BASE_YEAR) {  // 現在年以降のみ
+        autoEvents.push({year, name: `${child.name}：${ms.name}`, tag: ms.tag, memberName: child.name});
+      }
+    });
+  });
+  autoEvents.sort((a,b) => a.year - b.year);
+}
+
+function renderAutoEvents() {
+  const el = document.getElementById('autoEventList');
+  if (!autoEvents.length) {
+    el.innerHTML = '<p style="font-size:.82rem;color:var(--ink3);">（子どもの情報がないため自動生成なし）</p>';
+    return;
+  }
+  el.innerHTML = '<p style="font-size:.75rem;color:var(--ink3);margin-bottom:.65rem;">年が1年ずれる場合は ±1 で調整してください。</p><div class="auto-ev-list">' + autoEvents.map((e,i) => `
+    <div class="auto-ev">
+      <div class="auto-ev-icon">🎓</div>
+      <div class="auto-ev-body">
+        <div class="auto-ev-name">${esc(e.name)}</div>
+        <div class="auto-ev-year" style="display:flex;align-items:center;gap:.5rem;margin-top:.25rem;">
+          <button onclick="adjustAutoYear(${i},-1)" style="width:22px;height:22px;border:1px solid var(--border2);border-radius:3px;background:var(--bg2);cursor:pointer;font-size:.8rem;color:var(--ink2);line-height:1;">−</button>
+          <span id="auto-yr-${i}" style="font-size:.82rem;min-width:50px;text-align:center;">${e.year}年</span>
+          <button onclick="adjustAutoYear(${i},+1)" style="width:22px;height:22px;border:1px solid var(--border2);border-radius:3px;background:var(--bg2);cursor:pointer;font-size:.8rem;color:var(--ink2);line-height:1;">＋</button>
+        </div>
+      </div>
+      <span class="auto-ev-badge">自動生成</span>
+    </div>`).join('') + '</div>';
+}
+
+function adjustAutoYear(idx, delta) {
+  autoEvents[idx].year += delta;
+  const el = document.getElementById('auto-yr-' + idx);
+  if (el) el.textContent = autoEvents[idx].year + '年';
+}
+
+// ── VISION CONVERSION CARDS ────────────────────────────────────────────
+function buildVcState() {
+  const children = members.filter(m => m.type === 'child' && m.age !== null);
+  let idCounter = 0;
+  vcState = [];
+
+  visionItems.forEach(v => {
+    if (v.cat === '子ども・家族への支援' && children.length > 1) {
+      // 子どもが複数いる場合: 子どもごとにエントリを作成
+      children.forEach(child => {
+        vcState.push({
+          id: idCounter++,
+          cat: v.cat,
+          text: v.text,
+          childName: child.name,  // どの子ども向けか
+          childAge: child.age,
+          year: null, eventName: '', skipped: false, repeat: false, interval: 5,
+        });
+      });
+    } else {
+      vcState.push({
+        id: idCounter++,
+        cat: v.cat,
+        text: v.text,
+        childName: null, childAge: null,
+        year: null, eventName: '', skipped: false, repeat: false, interval: 5,
+      });
+    }
+  });
+}
+
+function renderVcList() {
+  const selfAge = parseInt(document.getElementById('selfAge').value) || 37;
+  const el = document.getElementById('vcList');
+  if (!vcState.length) {
+    el.innerHTML = '<p style="font-size:.82rem;color:var(--ink3);">ビジョンがありません。</p>';
+    return;
+  }
+
+  const catOrder = ['収入・稼ぎ方','住居・暮らし方','子ども・家族への支援','老後・リタイア','体験・生き方'];
+  const grouped = {};
+  vcState.forEach(v => {
+    const key = catOrder.includes(v.cat) ? v.cat : 'その他';
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(v);
+  });
+  const keys = [...catOrder.filter(k => grouped[k]), ...(grouped['その他'] ? ['その他'] : [])];
+
+
+  // 老後カテゴリ: パートナーの入力行も追加
+  function retirePartnerBlock(cat) {
+    const partner = members.find(m => m.type === 'partner' && m.age !== null);
+    if (!partner || cat !== '老後・リタイア') return '';
+    // パートナー用の仮vcStateエントリを使う（pvcStateで管理）
+    const pv = pvcState.find(x => x.id === 'partner_retire');
+    if (!pv) return '';
+    if (pv.year && pv.eventName) return `<div style="padding:.6rem .85rem;background:rgba(184,147,58,0.06);border:1px solid var(--border2);border-radius:4px;">
+      <div style="font-size:.76rem;color:var(--ink3);margin-bottom:.3rem;">パートナー（${esc(partner.name)}）のリタイア</div>
+      <div style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;flex-wrap:wrap;">
+        <span style="color:var(--gold);font-weight:500;">${pv.year}年</span>
+        <span style="color:var(--ink2);">— ${esc(pv.eventName)}</span>
+        <button onclick="reeditPv('partner_retire')" style="font-size:.72rem;color:var(--ink3);background:none;border:none;cursor:pointer;text-decoration:underline;margin-left:auto;">編集</button>
+      </div>
+    </div>`;
+
+    const suggs = [50,55,60,65,70].filter(a => a > partner.age).map(a => {
+      const yr = BASE_YEAR + (a - partner.age);
+      return `<button class="vc-opt" onclick="selectPvYear('partner_retire', ${yr}, this)">P ${a}歳（${yr}年）</button>`;
+    }).join('');
+
+    // パートナーのリタイアビジョン: 老後カテゴリのビジョンテキストを参考表示
+    const retireVisions = vcState.filter(v => v.cat === '老後・リタイア' && !v.skipped);
+    const visionRef = retireVisions.length
+      ? '<div style="font-size:.74rem;color:var(--ink3);margin-bottom:.5rem;line-height:1.5;">'
+        + retireVisions.map(v => '「' + esc(v.text) + '」').join('・')
+        + ' — パートナーの視点から</div>'
+      : '';
+
+    return `<div style="padding:.7rem .85rem;border:1px solid var(--border);border-radius:4px;background:var(--gold-bg);">
+      <div style="font-size:.8rem;color:var(--ink2);margin-bottom:.3rem;font-weight:500;">パートナー（${esc(partner.name)}）のリタイア時期</div>
+      ${visionRef}
+      <div class="vc-year-row">
+        <input class="vc-year-input" type="number" placeholder="年" min="2024" max="2070"
+          id="yr-pv-partner_retire" value="${pv.year||''}" onchange="setPvYear('partner_retire', this.value)" />
+        <input class="vc-event-input" type="text" placeholder="例：セミリタイア、完全リタイア"
+          id="ev-pv-partner_retire" value="${esc(pv.eventName)}" onchange="setPvEvent('partner_retire', this.value)" />
+        <button class="btn-add" onclick="confirmPv('partner_retire')">確定</button>
+      </div>
+      ${suggs ? `<div style="margin-top:.45rem;"><div style="font-size:.68rem;color:var(--ink3);margin-bottom:.3rem;">参考：パートナーの年齢から選ぶ</div><div class="vc-options" style="gap:.35rem;" id="sugg-pv-partner_retire">${suggs}</div></div>` : ''}
+    </div>`;
+  }
+
+  el.innerHTML = keys.map(cat => {
+    const items = grouped[cat];
+    const cs = CAT_STYLE[cat] || {color:'var(--gold)', icon:'●', tag:'other'};
+    const sup = VISION_SUPPORT[cat] || VISION_SUPPORT['体験・生き方'];
+    const allDone = items.every(v => v.skipped || (v.year && v.eventName));
+
+    if (items.length === 1) {
+      const v = items[0];
+      return renderSingleVisionCard(v, cat, cs, sup);
+    }
+
+    return `<div class="vc-card${allDone ? ' done' : ''}" id="vcg-${cat.replace(/[・ ]/g,'_')}">
+      <div class="vc-head" style="border-bottom:1px solid var(--border);padding-bottom:.85rem;">
+        <div class="vc-cat-dot" style="background:${cs.color};"></div>
+        <div style="flex:1;">
+          <span class="vc-cat-label" style="background:${cs.color}18;color:${cs.color};">${cs.icon} ${cat}</span>
+          <div style="font-size:.76rem;color:var(--ink3);margin-top:.25rem;">${sup.q}</div>
+        </div>
+      </div>
+      <div class="vc-body" style="display:flex;flex-direction:column;gap:.65rem;">
+        ${items.map(v => visionInputBlock(v, sup, cs, true)).join('')}
+        ${retirePartnerBlock(cat)}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+
+// 年齢サジェストボタン生成（各ビジョン個別・選び直しで上書き可）
+function makeSuggButtons(v, sup) {
+  const selfAge = parseInt(document.getElementById('selfAge').value) || 37;
+  const partner = members.find(m => m.type === 'partner' && m.age !== null);
+  const children = members.filter(m => m.type === 'child' && m.age !== null);
+
+  let buttons = '';
+
+  // 自分の年齢サジェスト
+  sup.ageSuggestions.filter(a => a.age > selfAge).forEach(a => {
+    const yr = BASE_YEAR + (a.age - selfAge);
+    buttons += `<button class="vc-opt" onclick="selectYearBtn(${v.id}, ${yr}, this)">${a.label}（${yr}年）</button>`;
+});
+
+  // 老後カテゴリ: パートナーサジェストはretirePartnerBlockで表示するためここでは不要
+
+  // 子ども・家族カテゴリ: 子ども個別エントリはその子どものみ、通常は全員分
+  if (v.cat === '子ども・家族への支援') {
+    const targetChildren = v.childName
+      ? children.filter(c => c.name === v.childName)
+      : children;
+    targetChildren.forEach(child => {
+      [6, 12, 15, 18, 22].forEach(age => {
+        const yr = BASE_YEAR + (age - child.age);
+        if (yr >= BASE_YEAR) {
+          const label = age === 6  ? child.name + ' 小学校入学'
+                      : age === 12 ? child.name + ' 中学校入学'
+                      : age === 15 ? child.name + ' 高校入学'
+                      : age === 18 ? child.name + ' 大学入学'
+                      : child.name + ' 就職';
+          buttons += '<button class="vc-opt" style="border-style:dashed;" onclick="selectYearBtn(' + v.id + ', ' + yr + ', this)">' + label + '（' + yr + '年）</button>';
+        }
+      });
+    });
+  }
+
+  return buttons;
+}
+
+// ビジョン1件の入力ブロック
+function visionInputBlock(v, sup, cs, isGrouped) {
+  if (v.skipped) return `<div style="padding:.6rem .85rem;background:var(--bg3);border-radius:4px;display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:.8rem;color:var(--ink3);">${esc(v.text)}</span>
+    <button onclick="unskip(${v.id})" style="font-size:.72rem;color:var(--gold);background:none;border:none;cursor:pointer;text-decoration:underline;white-space:nowrap;">戻す</button>
+  </div>`;
+
+  if (v.year && v.eventName) return `<div style="padding:.6rem .85rem;background:rgba(184,147,58,0.06);border:1px solid var(--border2);border-radius:4px;">
+    ${isGrouped ? `<div style="font-size:.76rem;color:var(--ink3);margin-bottom:.3rem;">${esc(v.text)}</div>` : ''}
+    <div style="display:flex;align-items:center;gap:.5rem;font-size:.82rem;flex-wrap:wrap;">
+      <span style="color:var(--gold);font-weight:500;">${v.year}年</span>
+      <span style="color:var(--ink2);">— ${esc(v.eventName)}</span>
+      ${v.repeat ? `<span style="font-size:.72rem;color:var(--ink3);">（${REPEAT_OPTIONS.find(r=>r.value===v.interval)?.label||''}）</span>` : ''}
+      <button onclick="reedit(${v.id})" style="font-size:.72rem;color:var(--ink3);background:none;border:none;cursor:pointer;text-decoration:underline;margin-left:auto;">編集</button>
+    </div>
+  </div>`;
+
+  const suggButtons = makeSuggButtons(v, sup);
+
+  return `<div style="padding:.7rem .85rem;border:1px solid var(--border);border-radius:4px;background:var(--bg2);" id="vb-${v.id}">
+    ${isGrouped ? `<div style="font-size:.8rem;color:var(--ink2);margin-bottom:.5rem;font-weight:500;">${v.childName ? '<span style="font-size:.75rem;background:var(--gold-bg);color:var(--gold);padding:.1rem .4rem;border-radius:2px;margin-right:.4rem;">' + esc(v.childName) + '</span>' : ''}${esc(v.text)}</div>` : ''}
+    <div class="vc-year-row">
+      <input class="vc-year-input" type="number" placeholder="年（例：2035）" min="2024" max="2070"
+        id="yr-${v.id}" value="${v.year||''}" onchange="setYear(${v.id}, this.value)" />
+      <input class="vc-event-input" type="text" placeholder="${sup.eventHint}"
+        id="ev-${v.id}" value="${esc(v.eventName)}" onchange="setEvent(${v.id}, this.value)" />
+      <button class="btn-add" onclick="confirmVc(${v.id})">確定</button>
+      ${isGrouped ? `<button class="btn-add" onclick="skip(${v.id})" style="color:var(--ink3);border-color:var(--border);">スキップ</button>` : ''}
+    </div>
+    ${suggButtons ? `<div style="margin-top:.45rem;"><div style="font-size:.68rem;color:var(--ink3);margin-bottom:.3rem;">参考：年齢から選ぶ（選び直し可）</div><div class="vc-options" style="gap:.35rem;" id="sugg-${v.id}">${suggButtons}</div></div>` : ''}
+    <div style="margin-top:.5rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+      <label style="font-size:.74rem;color:var(--ink3);display:flex;align-items:center;gap:.4rem;cursor:pointer;">
+        <input type="checkbox" id="rep-${v.id}" onchange="toggleRepeat(${v.id}, this.checked)" ${v.repeat?'checked':''} />
+        繰り返しイベントにする
+      </label>
+      ${v.repeat ? makeIntervalSelect(v) : ''}
+    </div>
+    ${!isGrouped ? `<div style="margin-top:.4rem;"><span class="vc-skip" onclick="skip(${v.id})">このビジョンはスキップ</span></div>` : ''}
+  </div>`;
+}
+
+
+function renderSingleVisionCard(v, cat, cs, sup) {
+  const isDone = v.year && v.eventName;
+  const partner = members.find(m => m.type === 'partner');
+  const doneClass = isDone && (!partner || cat !== '老後・リタイア') ? ' done' : '';
+
+  let bodyHtml;
+  if (v.skipped) {
+    bodyHtml = '<div class="vc-done-tag" style="border-top:1px solid var(--border);">'
+      + '<span style="color:var(--ink3);">スキップ済み</span>'
+      + '<button onclick="unskip(' + v.id + ')" style="font-size:.72rem;color:var(--gold);background:none;border:none;cursor:pointer;text-decoration:underline;margin-left:.5rem;">戻す</button>'
+      + '</div>';
+  } else {
+    bodyHtml = '<div class="vc-body">'
+      + '<div class="vc-q">' + sup.q + '</div>'
+      + visionInputBlock(v, sup, cs, false)
+      + retirePartnerBlock(cat)
+      + '</div>';
+  }
+
+  return '<div class="vc-card' + doneClass + '" id="vc-' + v.id + '">'
+    + '<div class="vc-head">'
+    + '<div class="vc-cat-dot" style="background:' + cs.color + ';"></div>'
+    + '<div style="flex:1;">'
+    + '<span class="vc-cat-label" style="background:' + cs.color + '18;color:' + cs.color + ';">' + cs.icon + ' ' + cat + '</span>'
+    + '<div class="vc-vision-text" style="margin-top:.3rem;">' + esc(v.text) + '</div>'
+    + '</div></div>'
+    + bodyHtml
+    + '</div>';
+}
+
+
+function makeIntervalSelect(v) {
+  return '<select class="ev-input" style="width:auto;padding:.3rem .5rem;" onchange="setInterval(' + v.id + ', this.value)">'
+    + REPEAT_OPTIONS.map(r => '<option value="' + r.value + '"' + (r.value === v.interval ? ' selected' : '') + '>' + r.label + '</option>').join('')
+    + '</select>';
+}
+
+
+function selectYear(id, year, btn) {
+  selectYearBtn(id, year, btn);
+}
+function selectYearBtn(id, year, btn) {
+  const v = vcState.find(x=>x.id===id);
+  if(!v) return;
+  v.year = year;
+  const input = document.getElementById('yr-'+id);
+  if(input) input.value = year;
+  // 同じvc-optionsグループ内のselを外して自分をon
+  const opts = btn.closest('.vc-options');
+  if(opts) opts.querySelectorAll('.vc-opt').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function selectPvYear(pvId, year, btn) {
+  const pv = pvcState.find(x=>x.id===pvId);
+  if(!pv) return;
+  pv.year = year;
+  const input = document.getElementById('yr-pv-'+pvId);
+  if(input) input.value = year;
+  const opts = btn.closest('.vc-options');
+  if(opts) opts.querySelectorAll('.vc-opt').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function setPvYear(pvId, val) { const pv=pvcState.find(x=>x.id===pvId); if(pv) pv.year=parseInt(val)||null; }
+function setPvEvent(pvId, val) { const pv=pvcState.find(x=>x.id===pvId); if(pv) pv.eventName=val; }
+function confirmPv(pvId) {
+  const pv = pvcState.find(x=>x.id===pvId);
+  const yr = parseInt(document.getElementById('yr-pv-'+pvId)?.value);
+  const ev = document.getElementById('ev-pv-'+pvId)?.value.trim();
+  if(!yr || !ev) { alert('年と出来事を入力してください。'); return; }
+  pv.year = yr; pv.eventName = ev;
+  renderVcList();
+}
+function reeditPv(pvId) { const pv=pvcState.find(x=>x.id===pvId); if(pv){ pv.year=null; pv.eventName=''; renderVcList(); } }
+
+function setYear(id, val) { const v=vcState.find(x=>x.id===id); if(v) v.year=parseInt(val)||null; }
+function setEvent(id, val) { const v=vcState.find(x=>x.id===id); if(v) v.eventName=val; }
+function toggleRepeat(id, checked) { const v=vcState.find(x=>x.id===id); if(v){ v.repeat=checked; renderVcList(); } }
+function setInterval(id, val) { const v=vcState.find(x=>x.id===id); if(v) v.interval=parseInt(val); }
+function skip(id) { const v=vcState.find(x=>x.id===id); if(v){ v.skipped=true; renderVcList(); } }
+function unskip(id) { const v=vcState.find(x=>x.id===id); if(v){ v.skipped=false; renderVcList(); } }
+function reedit(id) {
+  const v = vcState.find(x=>x.id===id);
+  if(!v) return;
+  // 値を保持したままedit状態に戻す（yearとeventNameはそのまま）
+  v._editing = true;
+  v._prevYear = v.year;
+  v._prevEventName = v.eventName;
+  v.year = null; v.eventName = '';
+  renderVcList();
+  // 少し待ってから値を復元してフォーカス
+  setTimeout(() => {
+    const yrEl = document.getElementById('yr-'+id);
+    const evEl = document.getElementById('ev-'+id);
+    if(yrEl) { yrEl.value = v._prevYear || ''; v.year = v._prevYear; }
+    if(evEl) { evEl.value = v._prevEventName || ''; v.eventName = v._prevEventName; evEl.focus(); }
+  }, 30);
+}
+function confirmVc(id) {
+  const v = vcState.find(x=>x.id===id);
+  if(!v) return;
+  const yr = parseInt(document.getElementById('yr-'+id).value);
+  const ev = document.getElementById('ev-'+id).value.trim();
+  if(!yr || !ev) { alert('年と出来事を入力してください。'); return; }
+  v.year = yr; v.eventName = ev;
+  renderVcList();
+}
+
+// ── CONFIRM STEP ───────────────────────────────────────────────────────
+function renderConfirmStep() {
+  buildAutoEvents();
+  renderAutoEvents();
+
+  // vision events（パートナーリタイアも含む）
+  const done = [
+    ...vcState.filter(v => !v.skipped && v.year && v.eventName),
+    ...pvcState.filter(pv => pv.year && pv.eventName).map(pv => ({
+      ...pv, cat:'老後・リタイア', text:'パートナーのリタイア・老後', repeat:false
+    }))
+  ];
+  const el = document.getElementById('visionEventList');
+  if (!done.length) {
+    el.innerHTML = '<p style="font-size:.82rem;color:var(--ink3);">（変換されたイベントがありません）</p>';
+  } else {
+    el.innerHTML = '<div class="confirm-list">' + done.map(v => {
+      const cs = CAT_STYLE[v.cat] || {color:'var(--gold)', icon:'●', tag:'other'};
+      const repeatTxt = v.repeat ? `<span class="ev-repeat-badge">（${REPEAT_OPTIONS.find(r=>r.value===v.interval)?.label}）</span>` : '';
+      return `<div class="confirm-row">
+        <div class="cy">${v.year}年</div>
+        <div class="ce"><span class="ev-tag" style="background:${cs.color}18;color:${cs.color};">${cs.icon}</span>${esc(v.eventName)}${repeatTxt}</div>
+        <span></span>
+      </div>`;
+    }).join('') + '</div>';
+  }
+
+  renderRepeatList();
+  renderExtraList();
+}
+
+// ── REPEAT EVENTS ──────────────────────────────────────────────────────
+function addRepeat() {
+  repeatEvents.push({id:nextId++, name:'', cat:'travel', startYear:BASE_YEAR, interval:5, endYear:BASE_YEAR+30});
+  renderRepeatList();
+}
+function removeRepeat(id) { repeatEvents=repeatEvents.filter(e=>e.id!==id); renderRepeatList(); }
+function renderRepeatList() {
+  document.getElementById('repeatList').innerHTML = repeatEvents.map(e => `
+    <div class="rep-card" id="rp-${e.id}">
+      <div class="rep-grid" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr;">
+        <div><div class="ev-label">出来事</div>
+          <input class="ev-input" type="text" placeholder="例：ハワイ旅行" value="${esc(e.name)}"
+            data-id="${e.id}" data-field="name" onchange="updateRP(this)" /></div>
+        <div><div class="ev-label">開始年</div>
+          <input class="ev-input" type="number" placeholder="例：2027" value="${e.startYear||''}"
+            data-id="${e.id}" data-field="startYear" onchange="updateRP(this)" /></div>
+        <div><div class="ev-label">終了年</div>
+          <input class="ev-input" type="number" placeholder="例：2050" value="${e.endYear||''}"
+            data-id="${e.id}" data-field="endYear" onchange="updateRP(this)" /></div>
+        <div><div class="ev-label">繰り返し</div>
+          <select class="ev-input" data-id="${e.id}" data-field="interval" onchange="updateRP(this)">
+            ${REPEAT_OPTIONS.map(r=>`<option value="${r.value}"${r.value===e.interval?' selected':''}>${r.label}</option>`).join('')}
+          </select></div>
+        <div><div class="ev-label">カテゴリ</div>
+          <select class="ev-input" data-id="${e.id}" data-field="cat" onchange="updateRP(this)">
+            ${CAT_OPTIONS.map(c=>`<option value="${c.value}"${c.value===e.cat?' selected':''}>${c.label}</option>`).join('')}
+          </select></div>
+      </div>
+      <div class="rep-del"><button class="btn-rm" style="font-size:1.1rem;" onclick="removeRepeat(${e.id})">×</button></div>
+    </div>`).join('');
+}
+function updateRP(el) {
+  const id=parseInt(el.dataset.id), field=el.dataset.field;
+  const e=repeatEvents.find(x=>x.id===id); if(!e) return;
+  e[field]=(field==='startYear'||field==='interval'||field==='endYear')?parseInt(el.value):el.value;
+}
+
+// ── EXTRA EVENTS ───────────────────────────────────────────────────────
+function addExtra() {
+  extraEvents.push({id:nextId++, year:'', name:'', cat:'other'});
+  renderExtraList();
+}
+function removeExtra(id) { extraEvents=extraEvents.filter(e=>e.id!==id); renderExtraList(); }
+function renderExtraList() {
+  document.getElementById('extraList').innerHTML = extraEvents.map(e => `
+    <div class="rep-card" id="ex-${e.id}" style="margin-bottom:.6rem;">
+      <div class="rep-grid" style="grid-template-columns:1fr 1fr 1fr;">
+        <div><div class="ev-label">年</div>
+          <input class="ev-input" type="number" placeholder="例：2030" value="${e.year||''}"
+            data-id="${e.id}" data-field="year" onchange="updateEx(this)" /></div>
+        <div><div class="ev-label">出来事</div>
+          <input class="ev-input" type="text" placeholder="例：親の介護開始"
+            value="${esc(e.name)}" data-id="${e.id}" data-field="name" onchange="updateEx(this)" /></div>
+        <div><div class="ev-label">カテゴリ</div>
+          <select class="ev-input" data-id="${e.id}" data-field="cat" onchange="updateEx(this)">
+            ${CAT_OPTIONS.map(c=>`<option value="${c.value}"${c.value===e.cat?' selected':''}>${c.label}</option>`).join('')}
+          </select></div>
+      </div>
+      <div class="rep-del"><button class="btn-rm" style="font-size:1.1rem;" onclick="removeExtra(${e.id})">×</button></div>
+    </div>`).join('');
+}
+function updateEx(el) {
+  const id=parseInt(el.dataset.id), field=el.dataset.field;
+  const e=extraEvents.find(x=>x.id===id); if(!e) return;
+  e[field]=field==='year'?parseInt(el.value):el.value;
+}
+
+// ── BUILD RESULT ────────────────────────────────────────────────────────
+function buildResult() {
+  const selfAge = parseInt(document.getElementById('selfAge').value)||null;
+  const selfName = document.getElementById('selfName').value||'自分';
+  const allMembers = [{name:selfName, age:selfAge}, ...members];
+
+  // 全イベントを年ごとに集約
+  const evMap = {};
+  const addEv = (year, name, tag, badge) => {
+    if (!year) return;
+    if (!evMap[year]) evMap[year] = [];
+    evMap[year].push({name, tag, badge});
+  };
+
+  autoEvents.forEach(e => addEv(e.year, e.name, 'auto', '自動'));
+
+  vcState.filter(v=>!v.skipped&&v.year&&v.eventName).forEach(v => {
+    const cs = CAT_STYLE[v.cat]||{tag:'other'};
+    const evName = v.childName ? v.childName + '：' + v.eventName : v.eventName;
+    if (v.repeat) {
+      const endYear = v.endYear || (BASE_YEAR + 35);
+      for (let yr = v.year; yr <= endYear; yr += v.interval) {
+        addEv(yr, evName, cs.tag||'other',
+          REPEAT_OPTIONS.find(r=>r.value===v.interval)?.label);
+      }
+    } else {
+      addEv(v.year, evName, cs.tag||'other', null);
+    }
+  });
+
+  repeatEvents.forEach(e => {
+    if (!e.name.trim()||!e.startYear) return;
+    const endYear = e.endYear || (BASE_YEAR + 35);
+    for (let yr = e.startYear; yr <= endYear; yr += e.interval) {
+      addEv(yr, e.name, e.cat,
+        REPEAT_OPTIONS.find(r=>r.value===e.interval)?.label);
+    }
+  });
+
+  extraEvents.forEach(e => { if(e.year&&e.name) addEv(e.year, e.name, e.cat, null); });
+  // パートナーリタイアイベント
+  pvcState.forEach(pv => { if(pv.year && pv.eventName) addEv(pv.year, pv.eventName, 'retire', null); });
+
+  // 年の一覧を生成（イベントのある年 + なくてもautoEventsで使われた年）
+  const allYears = [...new Set(Object.keys(evMap).map(Number))].sort((a,b)=>a-b);
+
+  if (!allYears.length) { alert('イベントがありません。'); return; }
+
+  // グローバルに保存して再描画できるようにする
+  resultEvMap = evMap;
+  resultYears = allYears;
+
+  // イベントHTML生成ヘルパー
+  function makeEventHtml(events, isVertical) {
+    if (!events.length) return isVertical
+      ? '<span class="c-empty">—</span>'
+      : '<span class="empty-cell">—</span>';
+    return events.map(e => {
+      const catInfo = CAT_OPTIONS.find(c=>c.value===e.tag)||CAT_OPTIONS[6];
+      const badge = e.badge ? `<span class="ev-repeat-badge">（${e.badge}）</span>` : '';
+      return `<div><span class="ev-tag ${catInfo.cls}">${catInfo.label}</span>${esc(e.name)}${badge}</div>`;
+    }).join('');
+  }
+
+  // ── 横向きテーブル（PC）: 年が列・人が行 ──
+  let hHtml = '<thead><tr><th class="row-head">年 →</th>';
+  allYears.forEach(y => {
+    hHtml += `<th style="white-space:nowrap;">${y}年`
+      + `<button onclick="deleteResultYear(${y})" title="この年を削除" `
+      + `style="margin-left:6px;background:none;border:none;color:rgba(184,147,58,.5);cursor:pointer;font-size:.75rem;line-height:1;vertical-align:middle;">✕</button></th>`;
+  });
+  hHtml += '</tr></thead><tbody>';
+
+  // 自分・家族メンバーの年齢行
+  allMembers.forEach(m => {
+    hHtml += `<tr><td class="row-head age-cell">${esc(m.name)}</td>`;
+    allYears.forEach(y => {
+      const a = m.age !== null ? m.age + (y - BASE_YEAR) : null;
+      hHtml += `<td class="age-cell">${a !== null ? a+'歳' : '—'}</td>`;
+    });
+    hHtml += '</tr>';
+  });
+
+  // イベント行
+  hHtml += '<tr><td class="row-head" style="font-weight:500;color:var(--ink);">イベント</td>';
+  allYears.forEach(y => {
+    const events = evMap[y]||[];
+    hHtml += `<td class="event-cell" contenteditable="true" style="outline:none;" title="クリックして編集">${makeEventHtml(events, false)}</td>`;
+  });
+  hHtml += '</tr></tbody>';
+  document.getElementById('resultTableH').innerHTML = hHtml;
+
+  // ── 縦向きテーブル（モバイル）: 年が行 ──
+  const ageHeaders = allMembers.map(m=>`<th>${esc(m.name)}</th>`).join('');
+  let vHtml = `<thead><tr><th>年</th>${ageHeaders}<th>イベント・出来事</th></tr></thead><tbody>`;
+  allYears.forEach(y => {
+    const ageCells = allMembers.map(m => {
+      const a = m.age!==null ? m.age+(y-BASE_YEAR) : null;
+      return `<td class="c-age">${a!==null?a+'歳':'—'}</td>`;
+    }).join('');
+    const events = evMap[y]||[];
+    vHtml += `<tr>
+      <td class="c-year" style="white-space:nowrap;">
+        <span contenteditable="true" style="outline:none;" >${y}年</span>
+        <button onclick="deleteResultYear(${y})" title="削除" style="margin-left:4px;background:none;border:none;color:rgba(184,147,58,.5);cursor:pointer;font-size:.75rem;">✕</button>
+      </td>
+      ${ageCells}
+      <td class="c-event" contenteditable="true" style="outline:none;">${makeEventHtml(events, true)}</td>
+    </tr>`;
+  });
+  vHtml += '</tbody>';
+  document.getElementById('resultTableV').innerHTML = vHtml;
+
+  const now = new Date();
+  document.getElementById('resultDate').textContent =
+    now.getFullYear()+'年'+(now.getMonth()+1)+'月'+now.getDate()+'日 作成';
+
+  ['s0','s1','s2'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById('sResult').classList.add('active');
+  document.querySelectorAll('.prog-dot').forEach(d=>{d.classList.remove('active');d.classList.add('done');});
+  document.getElementById('progTxt').textContent='完成';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── STEP NAV ────────────────────────────────────────────────────────────
+function goStep(n) {
+  ['s0','s1','s2','sResult'].forEach((id,i)=>document.getElementById(id).classList.toggle('active',i===n));
+  ['pd0','pd1','pd2','pd3'].forEach((id,i)=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.classList.remove('active','done');
+    if(i<n) el.classList.add('done');
+    if(i===n) el.classList.add('active');
+  });
+  document.getElementById('progTxt').textContent=['Step 1 / 4','Step 2 / 4','Step 3 / 4','Step 4 / 4'][n]||'';
+  if(n===1){ buildVcState(); renderVcList(); }
+  if(n===2) renderConfirmStep();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goVision() {
+  if(typeof leGoBack==='function') leGoBack();
+  else window.location.href='index.html';
+}
+
+function addResultEvent() {
+  const yr = parseInt(document.getElementById('addEvYear').value);
+  const name = document.getElementById('addEvName').value.trim();
+  const cat = document.getElementById('addEvCat').value;
+  if (!yr || !name) { alert('年と出来事を入力してください。'); return; }
+
+  // resultEvMapに直接追加して再描画
+  if (!resultEvMap[yr]) {
+    resultEvMap[yr] = [];
+    resultYears.push(yr);
+    resultYears.sort((a,b) => a-b);
+  }
+  const catInfo = CAT_OPTIONS.find(c=>c.value===cat)||CAT_OPTIONS[6];
+  resultEvMap[yr].push({ name, tag: cat, badge: null });
+
+  document.getElementById('addEvYear').value = '';
+  document.getElementById('addEvName').value = '';
+  renderResultTables();
+}
+
+function deleteResultYear(yr) {
+  if (!confirm(yr + '年を削除してもよいですか？')) return;
+  delete resultEvMap[yr];
+  resultYears = resultYears.filter(y => y !== yr);
+  renderResultTables();
+}
+
+function renderResultTables() {
+  if (!resultYears.length) return;
+  const selfAge = parseInt(document.getElementById('selfAge').value)||null;
+  const selfName = document.getElementById('selfName').value||'自分';
+  const allMembers = [{name:selfName, age:selfAge}, ...members];
+
+  function makeEventHtml(events, isVertical) {
+    if (!events || !events.length) return isVertical
+      ? '<span class="c-empty">—</span>'
+      : '<span class="empty-cell">—</span>';
+    return events.map(e => {
+      const catInfo = CAT_OPTIONS.find(c=>c.value===e.tag)||CAT_OPTIONS[6];
+      const badge = e.badge ? `<span class="ev-repeat-badge">（${e.badge}）</span>` : '';
+      return `<div><span class="ev-tag ${catInfo.cls}">${catInfo.label}</span>${esc(e.name)}${badge}</div>`;
+    }).join('');
+  }
+
+  // 横向きテーブル
+  let hHtml = '<thead><tr><th class="row-head">年 →</th>';
+  resultYears.forEach(y => {
+    hHtml += `<th style="white-space:nowrap;">${y}年`
+      + `<button onclick="deleteResultYear(${y})" title="この年を削除" `
+      + `style="margin-left:6px;background:none;border:none;color:rgba(184,147,58,.5);cursor:pointer;font-size:.75rem;line-height:1;vertical-align:middle;">✕</button></th>`;
+  });
+  hHtml += '</tr></thead><tbody>';
+  allMembers.forEach(m => {
+    hHtml += `<tr><td class="row-head age-cell">${esc(m.name)}</td>`;
+    resultYears.forEach(y => {
+      const a = m.age !== null ? m.age + (y - BASE_YEAR) : null;
+      hHtml += `<td class="age-cell">${a !== null ? a+'歳' : '—'}</td>`;
+    });
+    hHtml += '</tr>';
+  });
+  hHtml += '<tr><td class="row-head" style="font-weight:500;color:var(--ink);">イベント</td>';
+  resultYears.forEach(y => {
+    hHtml += `<td class="event-cell" contenteditable="true" style="outline:none;" title="クリックして編集">${makeEventHtml(resultEvMap[y]||[], false)}</td>`;
+  });
+  hHtml += '</tr></tbody>';
+  document.getElementById('resultTableH').innerHTML = hHtml;
+
+  // 縦向きテーブル
+  const ageHeaders = allMembers.map(m=>`<th>${esc(m.name)}</th>`).join('');
+  let vHtml = `<thead><tr><th>年</th>${ageHeaders}<th>イベント・出来事</th></tr></thead><tbody>`;
+  resultYears.forEach(y => {
+    const ageCells = allMembers.map(m => {
+      const a = m.age!==null ? m.age+(y-BASE_YEAR) : null;
+      return `<td class="c-age">${a!==null?a+'歳':'—'}</td>`;
+    }).join('');
+    vHtml += `<tr>
+      <td class="c-year" style="white-space:nowrap;">
+        <span contenteditable="true" style="outline:none;">${y}年</span>
+        <button onclick="deleteResultYear(${y})" title="削除" style="margin-left:4px;background:none;border:none;color:rgba(184,147,58,.5);cursor:pointer;font-size:.75rem;">✕</button>
+      </td>
+      ${ageCells}
+      <td class="c-event" contenteditable="true" style="outline:none;">${makeEventHtml(resultEvMap[y]||[], true)}</td>
+    </tr>`;
+  });
+  vHtml += '</tbody>';
+  document.getElementById('resultTableV').innerHTML = vHtml;
+}
+
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+init();
+
+function leGoBack(){
+  window.location.href='index.html';
+}
+</script>
+</body>
+</html>
